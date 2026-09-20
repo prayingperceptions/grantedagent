@@ -1,2 +1,2 @@
-# grantedagent
-Grant Intelligence for all of America
+# Granted Agent
+Grant Intelligence for America
