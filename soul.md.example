@@ -1,0 +1,62 @@
+# soul.md — your nonprofit's private brain
+#
+# Copy this file to ./granted-agent/soul.md and edit it.
+#
+#   mkdir -p granted-agent && cp soul.md.example granted-agent/soul.md
+#
+# It is plain YAML inside a Markdown file, so you can read and edit it by hand.
+# This file never leaves your machine in self-hosted mode. It is gitignored.
+# Anything under `secrets:` is redacted from every log line.
+
+# ---------------------------------------------------------------------------
+# Where you are
+# ---------------------------------------------------------------------------
+location:
+  city: "Anytown"
+  state: "CA"          # any US state code — the 50 states, e.g. CA, WI, TX
+  zip: "90210"
+  country: "US"
+
+# ---------------------------------------------------------------------------
+# What you will and won't accept
+# ---------------------------------------------------------------------------
+matching_rules:
+  # "national" means funding open to any US location and is valid in this list.
+  states: ["CA", "national"]
+  # Any grant whose text mentions these is scored -1.0 and hidden.
+  exclusions: ["for-profit", "political campaign"]
+  # Optional floor. Grants whose ceiling is below this are deprioritised.
+  min_amount: 5000
+  focus_areas: ["community health", "youth development"]
+
+# ---------------------------------------------------------------------------
+# Who you are. These values are available to templates as {{ nonprofit.* }}
+# ---------------------------------------------------------------------------
+nonprofit:
+  name: "Anytown Community Coalition"
+  ein: "12-3456789"
+  mission: >-
+    We improve health and economic outcomes for families in Anytown through
+    direct services, community organizing, and cross-sector partnership.
+  populations_served: ["low-income families", "youth", "seniors"]
+  focus_areas: ["community health", "food security", "youth development"]
+  past_grants:
+    - "Anytown Foundation, Community Health Grant, $25,000 (2025)"
+
+# ---------------------------------------------------------------------------
+# Boilerplate the Scribe reuses when drafting. Aim for a paragraph each.
+# These ship empty, so every draft says [NEEDS HUMAN INPUT: ...] until you
+# fill them in. The Scribe never invents content to fill a blank.
+# ---------------------------------------------------------------------------
+templates:
+  need_statement: ""
+  budget_narrative: ""
+  organizational_history: ""
+  alignment_statement: ""
+
+# ---------------------------------------------------------------------------
+# Optional. Delete this block if you self-host and do not want a key on disk.
+# Every key here is redacted in logs.
+# ---------------------------------------------------------------------------
+secrets:
+  api_key: ""

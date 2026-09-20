@@ -82,3 +82,69 @@ pytest -m network           # acceptance criteria only
 
 Acceptance: `STATES_FILTER=ALL` yields 20+ federal and 5+ foundation
 opportunities; `STATES_FILTER=WI` yields Wisconsin-scoped opportunities.
+
+## Platform (SaaS)
+
+Beyond the hunter, the repository carries the multi-tenant product: accounts,
+organizations, billing, the review inbox and the vault.
+
+### Tenancy model
+
+Every tenant-owned row hangs off a `nonprofit_id`. A route never receives a
+bare id: it receives a `TenantScope`, which can only be constructed by resolving
+a real `Membership` row for the caller. A handler that forgets to check tenancy
+cannot be written, because there is no unscoped id in scope to forget about.
+
+Two rules make the boundary auditable:
+
+* Tenant context comes from the **URL path**, never from a header or body
+  field, so the authorisation decision is visible in access logs.
+* A missing membership answers **404, not 403**. A 403 for an existing tenant
+  and a 404 for a missing one would let an attacker enumerate customer ids.
+
+Roles are `viewer < member < admin < owner`. Reads need membership; writing
+souls and drafts and reviewing matches needs `member`; member management and
+soul deletion need `admin`; billing needs `owner`. A caller may only act on a
+strictly lower role and may not grant a role at or above their own, so an admin
+cannot mint an owner and two admins cannot demote each other.
+
+### Authentication
+
+* Passwords are hashed with **argon2id** (19 MiB, 2 iterations).
+* Session and API tokens are 256 bits of CSPRNG output, stored only as a
+  SHA-256 digest; a database dump yields no live sessions.
+* Browser sessions ride in an `HttpOnly`, `SameSite=Lax` cookie. Because that
+  cookie is ambient, every state-changing request also needs a double-submit
+  CSRF token. Bearer tokens are exempt: the browser does not attach them
+  automatically.
+* Login answers identically - same status, same body, same CPU cost - for a
+  wrong password, an unknown address and a disabled account, so it cannot be
+  used to probe for accounts.
+* Login, signup and mail-sending endpoints are rate limited per IP and, for
+  login, per account.
+
+### Soul vault
+
+Each organization's soul is encrypted with AES-256-GCM under a per-tenant data
+key, which is wrapped by the `INNER_COURT_KEY` master key (envelope
+encryption). A database dump yields neither a key nor a mission statement.
+Only a sanitised, secret-free projection is mirrored into `soul_json` for
+templating and search.
+
+### Billing
+
+Stripe webhooks verify the signature against the raw request body before the
+payload is trusted, and each event id is recorded so a replayed delivery is a
+no-op. Billing self-disables unless both `STRIPE_SECRET_KEY` and
+`STRIPE_WEBHOOK_SECRET` are set.
+
+### Security tests
+
+```bash
+pytest tests/test_security.py    # tenant isolation, privilege escalation, CSRF
+```
+
+These are written as attacks: each one states what a malicious tenant would try
+and asserts the system refuses. A failure is a vulnerability, not a style
+problem. See `SECURITY_AUDIT.md` for the review that produced them and the
+findings it surfaced.

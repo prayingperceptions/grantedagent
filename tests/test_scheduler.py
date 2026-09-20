@@ -6,11 +6,10 @@ they assert orchestration and logging shape without any network.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
+from datetime import UTC, datetime
 
 from hunter.config import reload_settings
-from hunter.scheduler import HuntResult, build_scheduler, _merge_breakdowns
+from hunter.scheduler import HuntResult, _merge_breakdowns, build_scheduler
 from hunter.sources.base import GrantRecord, SourceResult
 
 
@@ -20,7 +19,7 @@ def test_hunt_result_serializes_all_required_counters():
     result.foundation_found = 7
     result.state_total = 3
     result.state_breakdown = {"WI": 3}
-    result.finished_at = datetime.now(timezone.utc)
+    result.finished_at = datetime.now(UTC)
 
     payload = result.as_log_dict()
     for key in ("federal_found", "foundation_found", "state_total", "state_breakdown"):

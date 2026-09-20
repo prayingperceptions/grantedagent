@@ -13,9 +13,19 @@ from datetime import date
 import pytest
 
 from hunter.deduper import dedupe_hash, normalize_deadline, normalize_text
-from hunter.sources.base import GrantRecord, parse_amount, parse_deadline, same_site, strip_html
+from hunter.sources.base import (
+    GrantRecord,
+    parse_amount,
+    parse_deadline,
+    same_site,
+    strip_html,
+)
 from hunter.sources.grants_gov import GrantsGovSource
-from hunter.sources.us_foundations import USFoundationsSource, filter_registry, load_registry
+from hunter.sources.us_foundations import (
+    USFoundationsSource,
+    filter_registry,
+    load_registry,
+)
 
 # --------------------------------------------------------------------------
 # deduper

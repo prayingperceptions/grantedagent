@@ -15,8 +15,8 @@ import pytest
 
 from hunter.config import reload_settings
 from hunter.sources.grants_gov import fetch_grants
-from hunter.sources.us_foundations import USFoundationsSource
 from hunter.sources.state_local_scraper import StateLocalScraper, resolve_states
+from hunter.sources.us_foundations import USFoundationsSource
 
 pytestmark = pytest.mark.network
 

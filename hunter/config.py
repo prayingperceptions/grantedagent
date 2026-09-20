@@ -71,10 +71,123 @@ class Settings(BaseSettings):
         alias="USER_AGENT",
     )
 
+    # --- Inner Court -------------------------------------------------------
+    inner_court_path: str = Field(default="", alias="INNER_COURT_PATH")
+    inner_court_key: str = Field(default="", alias="INNER_COURT_KEY")
+
+    # --- Scorer ------------------------------------------------------------
+    scorer_model: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2", alias="SCORER_MODEL"
+    )
+    scorer_sim_floor: float = Field(default=0.20, alias="SCORER_SIM_FLOOR")
+    scorer_sim_ceil: float = Field(default=0.72, alias="SCORER_SIM_CEIL")
+    scorer_min_description_chars: int = Field(
+        default=80, alias="SCORER_MIN_DESCRIPTION_CHARS"
+    )
+
+    # --- API / SaaS --------------------------------------------------------
+    cors_origins: str = Field(default="http://localhost:3000", alias="CORS_ORIGINS")
+    current_nonprofit_id: str = Field(default="", alias="CURRENT_NONPROFIT_ID")
+
+    api_base_url: str = Field(default="http://localhost:8000", alias="API_BASE_URL")
+    frontend_base_url: str = Field(
+        default="http://localhost:3000", alias="FRONTEND_BASE_URL"
+    )
+
+    # Cookies are only marked Secure when served over TLS. Defaulting this to
+    # true would silently drop the session cookie on a local HTTP deployment,
+    # producing a confusing "login does nothing" bug.
+    session_cookie_secure: bool = Field(default=False, alias="SESSION_COOKIE_SECURE")
+    session_cookie_domain: str = Field(default="", alias="SESSION_COOKIE_DOMAIN")
+
+    # Verification and reset links are emailed with this base.
+    public_base_url: str = Field(default="http://localhost:8000", alias="PUBLIC_BASE_URL")
+
+    # When unset, outbound email is written to the log instead of sent. This
+    # keeps local development and tests from sending real mail.
+    smtp_host: str = Field(default="", alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_user: str = Field(default="", alias="SMTP_USER")
+    smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
+    smtp_from: str = Field(default="Granted Agent <no-reply@grantedagent.com>", alias="SMTP_FROM")
+    smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
+
+    # --- Stripe ------------------------------------------------------------
+    stripe_secret_key: str = Field(default="", alias="STRIPE_SECRET_KEY")
+    stripe_webhook_secret: str = Field(default="", alias="STRIPE_WEBHOOK_SECRET")
+    stripe_publishable_key: str = Field(default="", alias="STRIPE_PUBLISHABLE_KEY")
+    # Comma separated price_id:plan pairs, e.g. price_abc:turnkey,price_def:growth.
+    stripe_prices: str = Field(default="", alias="STRIPE_PRICES")
+
+    # --- Rate limiting -----------------------------------------------------
+    rate_limit_enabled: bool = Field(default=True, alias="RATE_LIMIT_ENABLED")
+
+    # --- Security ----------------------------------------------------------
+    # Extra hostnames accepted by the host-header check, besides those derived
+    # from the configured base URLs.
+    allowed_hosts: str = Field(default="", alias="ALLOWED_HOSTS")
+    environment: str = Field(default="development", alias="ENVIRONMENT")
+
     @field_validator("states_filter")
     @classmethod
     def _strip(cls, v: str) -> str:
         return v.strip()
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def stripe_price_ids(self) -> dict[str, str]:
+        """Map plan key -> Stripe price id, from STRIPE_PRICES."""
+        out: dict[str, str] = {}
+        for pair in self.stripe_prices.split(","):
+            pair = pair.strip()
+            if not pair or ":" not in pair:
+                continue
+            price_id, plan_key = pair.split(":", 1)
+            price_id, plan_key = price_id.strip(), plan_key.strip().lower()
+            if price_id and plan_key:
+                out[plan_key] = price_id
+        return out
+
+    @property
+    def stripe_price_ids_inverted(self) -> dict[str, str]:
+        """Map Stripe price id -> plan key, for webhook reconciliation."""
+        return {v: k for k, v in self.stripe_price_ids.items()}
+
+    @property
+    def allowed_host_list(self) -> list[str]:
+        """Hostnames permitted in the Host header.
+
+        Derived from the configured public URLs plus any explicit extras, so a
+        deployment cannot forget to include itself.
+        """
+        from urllib.parse import urlparse
+
+        hosts = set()
+        for url in (self.public_base_url, self.frontend_base_url, self.api_base_url):
+            host = urlparse(url).hostname
+            if host:
+                hosts.add(host)
+        for extra in self.allowed_hosts.split(","):
+            extra = extra.strip()
+            if extra:
+                hosts.add(extra)
+        hosts.update({"localhost", "127.0.0.1", "testserver"})
+        return sorted(hosts)
+
+    @property
+    def email_configured(self) -> bool:
+        return bool(self.smtp_host)
+
+    @property
+    def billing_configured(self) -> bool:
+        return bool(self.stripe_secret_key and self.stripe_webhook_secret)
+
+    @property
+    def cookie_secure(self) -> bool:
+        return self.session_cookie_secure or self.public_base_url.startswith("https://")
 
     @property
     def state_codes(self) -> list[str]:

@@ -7,3 +7,8 @@ __pycache__/
 build/
 dist/
 .agent_tmp/
+# Inner Court vault: never commit a real soul file or its key material
+soul.md
+granted-agent/
+*.soul.md
+vault/
