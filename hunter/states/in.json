@@ -1,0 +1,39 @@
+{
+  "state_code": "IN",
+  "state_name": "Indiana",
+  "base_domain_suffix": ".gov",
+  "portals": [
+    {
+      "name": "Indiana Grants",
+      "url": "https://www.in.gov/grants/",
+      "mode": "playwright",
+      "verified": false,
+      "selectors": {
+        "item": "article, li, .grant, .card, tr",
+        "title": "h1, h2, h3, h4, a",
+        "link": "a[href]",
+        "date": "time, .date, .deadline",
+        "amount": ".amount, .funding, .award",
+        "description": "p"
+      },
+      "keywords": [
+        "grant",
+        "grants",
+        "funding",
+        "rfp",
+        "rfa",
+        "request for proposals",
+        "request for applications",
+        "notice of funding",
+        "nofo",
+        "solicitation",
+        "apply",
+        "application",
+        "award",
+        "opportunity",
+        "deadline"
+      ],
+      "max_items": 60
+    }
+  ]
+}

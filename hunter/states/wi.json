@@ -1,0 +1,103 @@
+{
+  "state_code": "WI",
+  "state_name": "Wisconsin",
+  "base_domain_suffix": ".gov",
+  "portals": [
+    {
+      "name": "Wisconsin Humanities Grants",
+      "url": "https://www.wisconsinhumanities.org/grants",
+      "mode": "http",
+      "verified": true,
+      "selectors": {
+        "item": "article, li, .grant, .card, tr",
+        "title": "h1, h2, h3, h4, a",
+        "link": "a[href]",
+        "date": "time, .date, .deadline",
+        "amount": ".amount, .funding, .award",
+        "description": "p"
+      },
+      "keywords": [
+        "grant",
+        "grants",
+        "funding",
+        "rfp",
+        "rfa",
+        "request for proposals",
+        "request for applications",
+        "notice of funding",
+        "nofo",
+        "solicitation",
+        "apply",
+        "application",
+        "award",
+        "opportunity",
+        "deadline"
+      ],
+      "max_items": 60
+    },
+    {
+      "name": "UW System Grants and Awards",
+      "url": "https://www.wisconsin.edu/grants-awards/",
+      "mode": "http",
+      "verified": true,
+      "selectors": {
+        "item": "article, li, .grant, .card, tr",
+        "title": "h1, h2, h3, h4, a",
+        "link": "a[href]",
+        "date": "time, .date, .deadline",
+        "amount": ".amount, .funding, .award",
+        "description": "p"
+      },
+      "keywords": [
+        "grant",
+        "grants",
+        "funding",
+        "rfp",
+        "rfa",
+        "request for proposals",
+        "request for applications",
+        "notice of funding",
+        "nofo",
+        "solicitation",
+        "apply",
+        "application",
+        "award",
+        "opportunity",
+        "deadline"
+      ],
+      "max_items": 60
+    },
+    {
+      "name": "Wisconsin Department of Administration Grants",
+      "url": "https://doa.wi.gov/Pages/Grants.aspx",
+      "mode": "playwright",
+      "verified": false,
+      "selectors": {
+        "item": "article, li, .grant, .card, tr",
+        "title": "h1, h2, h3, h4, a",
+        "link": "a[href]",
+        "date": "time, .date, .deadline",
+        "amount": ".amount, .funding, .award",
+        "description": "p"
+      },
+      "keywords": [
+        "grant",
+        "grants",
+        "funding",
+        "rfp",
+        "rfa",
+        "request for proposals",
+        "request for applications",
+        "notice of funding",
+        "nofo",
+        "solicitation",
+        "apply",
+        "application",
+        "award",
+        "opportunity",
+        "deadline"
+      ],
+      "max_items": 60
+    }
+  ]
+}
